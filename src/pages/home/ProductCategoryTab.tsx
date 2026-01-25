@@ -1,0 +1,301 @@
+import React, { useState, useRef } from "react";
+import { Tabs, ConfigProvider } from "antd";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperType } from "swiper";
+import { Autoplay, Grid } from "swiper/modules";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { FaChevronLeft, FaChevronRight, FaLeaf } from "react-icons/fa";
+import { Link } from "react-router";
+import { dummyProducts } from "../../data/products";
+import type { Product } from "../../types/product";
+
+import "swiper/css";
+import "swiper/css/grid";
+
+const categories = ["Ayurvedic", "Homeo", "Unani", "Herbal"];
+
+interface ProductCardProps {
+  product: Product;
+  index: number;
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: i * 0.05,
+      duration: 0.4,
+      ease: [0.25, 0.4, 0.25, 1],
+    },
+  }),
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    transition: { duration: 0.2 },
+  },
+};
+
+const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => (
+  <motion.div
+    custom={index}
+    variants={cardVariants}
+    initial="hidden"
+    animate="visible"
+    exit="exit"
+    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+  >
+    <Link to={`/products/${product.category}`} className="block h-full">
+      <div className="group bg-white rounded-xl border border-gray-100 p-3 sm:p-4 hover:shadow-xl transition-all duration-300 h-full flex flex-col overflow-hidden">
+        {/* Product Image Placeholder */}
+        <div className="relative h-24 sm:h-32 bg-gradient-to-br from-[#f0f7f1] to-[#e5f0e7] rounded-lg mb-2 sm:mb-3 flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <motion.div
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#0b6b31]/10 flex items-center justify-center"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FaLeaf className="text-[#0b6b31] text-lg sm:text-xl" />
+          </motion.div>
+          {/* Category Badge */}
+          <span className="absolute top-2 left-2 px-2 py-0.5 bg-[#0b6b31] text-white text-[8px] sm:text-[10px] rounded-full font-medium">
+            {product.category}
+          </span>
+        </div>
+
+        {/* Product Info */}
+        <div className="flex flex-col flex-grow">
+          <span className="text-[#2e3191] text-[10px] sm:text-xs uppercase tracking-wide font-medium">
+            {product.subcategory}
+          </span>
+          <h4 className="text-[#222] font-medium text-xs sm:text-sm leading-tight line-clamp-2 mt-1 flex-grow group-hover:text-[#0b6b31] transition-colors">
+            {product.name}
+          </h4>
+          <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-50">
+            <span className="text-[#0b6b31] font-bold text-sm sm:text-base">৳{product.price}</span>
+            <span className="text-[8px] sm:text-[10px] text-white bg-green-500 px-2 py-0.5 rounded-full">In Stock</span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  </motion.div>
+);
+
+interface ProductSwiperProps {
+  products: Product[];
+}
+
+const ProductSwiper: React.FC<ProductSwiperProps> = ({ products }) => {
+  const swiperRef = useRef<SwiperType | null>(null);
+
+  return (
+    <div className="relative">
+      <AnimatePresence mode="wait">
+        <Swiper
+          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          slidesPerView={1.5}
+          grid={{
+            rows: 2,
+            fill: "row",
+          }}
+          spaceBetween={12}
+          loop={products.length > 6}
+          autoplay={{
+            delay: 4000,
+            disableOnInteraction: false,
+          }}
+          modules={[Autoplay, Grid]}
+          breakpoints={{
+            320: {
+              slidesPerView: 1.5,
+              spaceBetween: 10,
+              grid: { rows: 2, fill: "row" }
+            },
+            400: {
+              slidesPerView: 2,
+              spaceBetween: 12,
+              grid: { rows: 2, fill: "row" }
+            },
+            640: {
+              slidesPerView: 2.5,
+              spaceBetween: 14,
+              grid: { rows: 2, fill: "row" }
+            },
+            768: {
+              slidesPerView: 3,
+              spaceBetween: 16,
+              grid: { rows: 2, fill: "row" }
+            },
+            1024: {
+              slidesPerView: 4,
+              spaceBetween: 16,
+              grid: { rows: 2, fill: "row" }
+            },
+            1280: {
+              slidesPerView: 5,
+              spaceBetween: 20,
+              grid: { rows: 2, fill: "row" }
+            },
+          }}
+          className="product-category-swiper"
+        >
+          {products.map((product, index) => (
+            <SwiperSlide key={product.id}>
+              <ProductCard product={product} index={index} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </AnimatePresence>
+
+      {/* Custom Navigation */}
+      <div className="flex justify-center gap-3 sm:gap-4 mt-4 sm:mt-6">
+        <motion.button
+          onClick={() => swiperRef.current?.slidePrev()}
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border-2 border-[#0b6b31] flex items-center justify-center text-[#0b6b31] hover:bg-[#0b6b31] hover:text-white transition-all duration-300 shadow-md"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <FaChevronLeft className="text-sm" />
+        </motion.button>
+        <motion.button
+          onClick={() => swiperRef.current?.slideNext()}
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border-2 border-[#0b6b31] flex items-center justify-center text-[#0b6b31] hover:bg-[#0b6b31] hover:text-white transition-all duration-300 shadow-md"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <FaChevronRight className="text-sm" />
+        </motion.button>
+      </div>
+    </div>
+  );
+};
+
+const ProductCategoryTab: React.FC = () => {
+  const [activeKey, setActiveKey] = useState("Ayurvedic");
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-50px" });
+
+  const getProductsByCategory = (category: string) => {
+    return dummyProducts.filter((product) => product.category === category);
+  };
+
+  const tabItems = categories.map((category) => ({
+    key: category,
+    label: (
+      <span className="px-1 sm:px-2 text-sm sm:text-base font-medium">
+        {category === "Homeo" ? "Homeopathic" : category}
+      </span>
+    ),
+    children: <ProductSwiper products={getProductsByCategory(category)} />,
+  }));
+
+  return (
+    <section ref={sectionRef} className="relative py-10 sm:py-14 px-3 sm:px-4 md:px-12 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#f8faf8] via-[#f0f5f1] to-[#f8faf8]" />
+
+      {/* Decorative Elements */}
+      <motion.div
+        className="absolute top-20 right-0 w-72 h-72 bg-[#0b6b31]/5 rounded-full translate-x-1/2 blur-3xl"
+        animate={{ scale: [1, 1.2, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-20 left-0 w-64 h-64 bg-[#2e3191]/5 rounded-full -translate-x-1/2 blur-3xl"
+        animate={{ scale: [1, 1.3, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Leaf Pattern - Top Right */}
+      <motion.div
+        className="absolute top-10 right-10 text-[#0b6b31]/5 text-9xl hidden lg:block"
+        animate={{ rotate: [0, 5, 0, -5, 0] }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <FaLeaf />
+      </motion.div>
+
+      <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div
+          className="text-center mb-6 sm:mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.span
+            className="inline-block px-3 sm:px-4 py-1 bg-[#0b6b31]/10 text-[#0b6b31] text-[10px] sm:text-xs md:text-sm font-medium rounded-full mb-2 sm:mb-3"
+            whileHover={{ scale: 1.05 }}
+          >
+            Featured Products
+          </motion.span>
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-[#222] mb-2">
+            Our <span className="text-[#0b6b31]">Products</span>
+          </h2>
+          <p className="text-gray-500 text-xs sm:text-sm md:text-base max-w-xl mx-auto px-2">
+            Explore our complete range of traditional medicines
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <ConfigProvider
+            theme={{
+              components: {
+                Tabs: {
+                  itemColor: "#666",
+                  itemHoverColor: "#0b6b31",
+                  itemSelectedColor: "#0b6b31",
+                  inkBarColor: "#0b6b31",
+                  titleFontSize: 14,
+                  horizontalItemPadding: "12px 16px",
+                },
+              },
+            }}
+          >
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-sm border border-white/80">
+              <Tabs
+                activeKey={activeKey}
+                onChange={setActiveKey}
+                items={tabItems}
+                centered
+                size="middle"
+                tabBarStyle={{
+                  marginBottom: 20,
+                }}
+                className="product-tabs"
+              />
+            </div>
+          </ConfigProvider>
+        </motion.div>
+
+        {/* View All Link */}
+        <motion.div
+          className="text-center mt-6 sm:mt-8"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.5 }}
+        >
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link
+              to={`/products/${activeKey}`}
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 bg-[#0b6b31] text-white text-xs sm:text-sm md:text-base font-medium rounded-full hover:bg-[#095228] transition-colors shadow-lg hover:shadow-xl"
+            >
+              View All {activeKey === "Homeo" ? "Homeopathic" : activeKey} Products
+              <FaChevronRight className="text-[10px] sm:text-xs" />
+            </Link>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+export default ProductCategoryTab;
