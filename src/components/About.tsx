@@ -5,6 +5,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import img from "../assets/home/about.jpg";
 import img2 from "../assets/home/about2.jpg";
 import img3 from "../assets/home/about3.jpg";
+import img4 from "../assets/home/about4.jpg";
+import img5 from "../assets/home/about5.jpg";
 import { Avatar } from "antd";
 import { FaLeaf } from "react-icons/fa";
 
@@ -28,7 +30,7 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: [0.25, 0.4, 0.25, 1] as const,
     },
   },
 };
@@ -131,7 +133,7 @@ const About: React.FC = () => {
             className="w-full lg:w-1/2 flex justify-center py-8 sm:py-12"
             initial={{ opacity: 0, x: -50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
+            transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] as const }}
           >
             <div
               ref={imageRef}
@@ -197,7 +199,7 @@ const About: React.FC = () => {
 
               <Avatar
                 size={50}
-                src="https://randomuser.me/api/portraits/men/32.jpg"
+                src={img5}
                 className="orbit-avatar"
                 style={{
                   position: "absolute",
@@ -223,7 +225,7 @@ const About: React.FC = () => {
 
               <Avatar
                 size={65}
-                src="https://randomuser.me/api/portraits/men/76.jpg"
+                src={img4}
                 className="orbit-avatar"
                 style={{
                   position: "absolute",

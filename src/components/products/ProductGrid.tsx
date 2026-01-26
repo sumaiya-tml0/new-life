@@ -6,11 +6,21 @@ import { useProductStore } from "../../store/useProductStore";
 const { Text, Title } = Typography;
 
 const ProductGrid = () => {
-  const { currentCategory, selectedSubcategories, toggleSubcategory, clearSubcategories } = useProductStore();
+  const { currentCategory, selectedSubcategories, toggleSubcategory, clearSubcategories, searchQuery, clearSearch } = useProductStore();
 
-  // Filter products based on current category and selected subcategories
+  // Filter products based on search query, current category and selected subcategories
   const filteredProducts = dummyProducts.filter((product) => {
-    // If no category selected, show all products
+    // First filter by search query if present
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch =
+        product.name.toLowerCase().includes(query) ||
+        product.category.toLowerCase().includes(query) ||
+        (product.subcategory && product.subcategory.toLowerCase().includes(query));
+      if (!matchesSearch) return false;
+    }
+
+    // If no category selected, show all products (that match search)
     if (!currentCategory) {
       if (selectedSubcategories.length === 0) return true;
       return product.subcategory && selectedSubcategories.includes(product.subcategory);
@@ -28,8 +38,22 @@ const ProductGrid = () => {
 
   return (
     <div>
+      {/* Search query indicator */}
+      {searchQuery && (
+        <div className="mb-3 sm:mb-4 flex items-center flex-wrap gap-2">
+          <Text className="text-gray-600 text-sm">Search results for:</Text>
+          <Tag
+            closable
+            onClose={clearSearch}
+            className="!bg-[#0b6b31] !text-white !border-none !rounded text-xs sm:text-sm"
+          >
+            "{searchQuery}"
+          </Tag>
+        </div>
+      )}
+
       {/* Category title */}
-      {currentCategory && (
+      {currentCategory && !searchQuery && (
         <Title level={3} className="!text-xl sm:!text-2xl md:!text-3xl !text-[#0b6b31] !mb-3 sm:!mb-4">
           {currentCategory}
         </Title>

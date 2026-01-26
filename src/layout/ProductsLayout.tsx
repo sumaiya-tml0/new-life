@@ -6,8 +6,6 @@ import CategorySidebar from "../components/products/CategorySidebar";
 import ProductGrid from "../components/products/ProductGrid";
 import { useProductStore } from "../store/useProductStore";
 
-const { Content, Sider } = Layout;
-
 const ProductsLayout = () => {
   const { category } = useParams();
   const { setCurrentCategory } = useProductStore();

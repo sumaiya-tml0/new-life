@@ -10,7 +10,6 @@ import {
   FaTwitter,
   FaLinkedinIn,
   FaYoutube,
-  FaUser
 } from "react-icons/fa";
 import { GiHealing } from "react-icons/gi";
 import { BsTelephone, BsCheckCircleFill } from "react-icons/bs";
@@ -33,7 +32,7 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: [0.25, 0.4, 0.25, 1] as const,
     },
   },
 };

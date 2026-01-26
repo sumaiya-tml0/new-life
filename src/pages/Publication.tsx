@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { FaLeaf, FaBook, FaNewspaper, FaDownload } from "react-icons/fa";
-import { GiHealing } from "react-icons/gi";
+import { FaBook, FaNewspaper, FaDownload } from "react-icons/fa";
 import { BsJournalMedical } from "react-icons/bs";
 import herbsImg from "../assets/home/herb_medicine.jpg";
 
@@ -23,7 +22,7 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: [0.25, 0.4, 0.25, 1] as const,
     },
   },
 };
@@ -249,25 +248,6 @@ const Publication: React.FC = () => {
                   Each issue features articles on treatment methods, research findings, health tips, and updates from the world of alternative medicine.
                 </p>
               </div>
-
-              <div className="flex flex-wrap gap-3 mt-6">
-                <motion.button
-                  className="px-5 sm:px-6 py-2.5 bg-[#0b6b31] text-white text-sm font-medium rounded-full hover:bg-[#095228] transition-colors flex items-center gap-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <FaNewspaper />
-                  Subscribe Now
-                </motion.button>
-                <motion.button
-                  className="px-5 sm:px-6 py-2.5 border-2 border-[#0b6b31] text-[#0b6b31] text-sm font-medium rounded-full hover:bg-[#0b6b31] hover:text-white transition-colors flex items-center gap-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <FaDownload />
-                  View Archive
-                </motion.button>
-              </div>
             </motion.div>
 
             {/* Right - Magazine Image */}
@@ -431,38 +411,7 @@ const Publication: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 bg-gradient-to-b from-[#0b6b31] to-[#095228]">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">
-              Stay Updated with Our Publications
-            </h2>
-            <p className="text-white/80 text-sm sm:text-base mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
-              Subscribe to receive the latest issues of New Life Barta and updates on new publications.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
-              />
-              <motion.button
-                className="px-6 py-3 bg-white text-[#0b6b31] font-medium rounded-full hover:bg-gray-100 transition-colors text-sm"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Subscribe
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+
     </div>
   );
 };

@@ -8,79 +8,12 @@ import { FaChevronLeft, FaChevronRight, FaLeaf } from "react-icons/fa";
 import { Link } from "react-router";
 import { dummyProducts } from "../../data/products";
 import type { Product } from "../../types/product";
+import ProductCard from "../../components/products/ProductCard";
 
 import "swiper/css";
 import "swiper/css/grid";
 
 const categories = ["Ayurvedic", "Homeo", "Unani", "Herbal"];
-
-interface ProductCardProps {
-  product: Product;
-  index: number;
-}
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      delay: i * 0.05,
-      duration: 0.4,
-      ease: [0.25, 0.4, 0.25, 1],
-    },
-  }),
-  exit: {
-    opacity: 0,
-    scale: 0.95,
-    transition: { duration: 0.2 },
-  },
-};
-
-const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => (
-  <motion.div
-    custom={index}
-    variants={cardVariants}
-    initial="hidden"
-    animate="visible"
-    exit="exit"
-    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-  >
-    <Link to={`/products/${product.category}`} className="block h-full">
-      <div className="group bg-white rounded-xl border border-gray-100 p-3 sm:p-4 hover:shadow-xl transition-all duration-300 h-full flex flex-col overflow-hidden">
-        {/* Product Image Placeholder */}
-        <div className="relative h-24 sm:h-32 bg-gradient-to-br from-[#f0f7f1] to-[#e5f0e7] rounded-lg mb-2 sm:mb-3 flex items-center justify-center flex-shrink-0 overflow-hidden">
-          <motion.div
-            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#0b6b31]/10 flex items-center justify-center"
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            transition={{ duration: 0.3 }}
-          >
-            <FaLeaf className="text-[#0b6b31] text-lg sm:text-xl" />
-          </motion.div>
-          {/* Category Badge */}
-          <span className="absolute top-2 left-2 px-2 py-0.5 bg-[#0b6b31] text-white text-[8px] sm:text-[10px] rounded-full font-medium">
-            {product.category}
-          </span>
-        </div>
-
-        {/* Product Info */}
-        <div className="flex flex-col flex-grow">
-          <span className="text-[#2e3191] text-[10px] sm:text-xs uppercase tracking-wide font-medium">
-            {product.subcategory}
-          </span>
-          <h4 className="text-[#222] font-medium text-xs sm:text-sm leading-tight line-clamp-2 mt-1 flex-grow group-hover:text-[#0b6b31] transition-colors">
-            {product.name}
-          </h4>
-          <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-50">
-            <span className="text-[#0b6b31] font-bold text-sm sm:text-base">৳{product.price}</span>
-            <span className="text-[8px] sm:text-[10px] text-white bg-green-500 px-2 py-0.5 rounded-full">In Stock</span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  </motion.div>
-);
 
 interface ProductSwiperProps {
   products: Product[];
@@ -140,9 +73,9 @@ const ProductSwiper: React.FC<ProductSwiperProps> = ({ products }) => {
           }}
           className="product-category-swiper"
         >
-          {products.map((product, index) => (
+          {products.map((product) => (
             <SwiperSlide key={product.id}>
-              <ProductCard product={product} index={index} />
+              <ProductCard product={product} compact />
             </SwiperSlide>
           ))}
         </Swiper>

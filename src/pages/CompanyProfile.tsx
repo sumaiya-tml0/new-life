@@ -1,12 +1,11 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { FaLeaf, FaHistory, FaIndustry, FaBookOpen, FaFlask, FaMedal } from "react-icons/fa";
-import { GiMedicines, GiFactory, GiHealing } from "react-icons/gi";
+import { FaLeaf, FaIndustry, FaFlask, FaMedal } from "react-icons/fa";
+import { GiMedicines, GiHealing } from "react-icons/gi";
 import { BsBuilding } from "react-icons/bs";
 import aboutImg from "../assets/home/about.jpg";
 import about2Img from "../assets/home/about2.jpg";
 import about3Img from "../assets/home/about3.jpg";
-import herbsImg from "../assets/home/herbs.jpg";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -26,11 +25,10 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: [0.25, 0.4, 0.25, 1] as const,
     },
   },
 };
-
 
 const CompanyProfile: React.FC = () => {
   const heroRef = useRef<HTMLElement>(null);

@@ -1,5 +1,6 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import { ConfigProvider } from "antd";
+import { useEffect } from "react";
 import Header from "../shared/Header.tsx";
 import Footer from "../shared/Footer.tsx";
 
@@ -9,6 +10,12 @@ import Footer from "../shared/Footer.tsx";
 // Accent Red: #b11319
 
 const MainLayout = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
     <>
       <ConfigProvider

@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { FaLeaf, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaArrowRight } from "react-icons/fa";
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaArrowRight } from "react-icons/fa";
 import { GiHealing } from "react-icons/gi";
 import { BsNewspaper } from "react-icons/bs";
 import herbsImg from "../assets/home/herb_medicine.jpg";
@@ -23,7 +23,7 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: [0.25, 0.4, 0.25, 1] as const,
     },
   },
 };
@@ -385,46 +385,7 @@ const NewsEvents: React.FC = () => {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            className="bg-gradient-to-br from-[#0b6b31] to-[#095228] rounded-3xl p-8 sm:p-12 text-center"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <motion.div
-              className="w-16 h-16 mx-auto mb-6 rounded-full bg-white/10 flex items-center justify-center"
-              animate={{ rotate: [0, 5, 0, -5, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <FaLeaf className="text-white text-2xl" />
-            </motion.div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-              Subscribe to Our Newsletter
-            </h2>
-            <p className="text-white/80 text-sm sm:text-base mb-6 sm:mb-8 max-w-xl mx-auto">
-              Get the latest news, event updates, and health tips delivered directly to your inbox.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
-              />
-              <motion.button
-                className="px-6 py-3 bg-white text-[#0b6b31] font-medium rounded-full hover:bg-gray-100 transition-colors text-sm"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Subscribe
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+ 
 
       {/* CTA Section */}
       <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 bg-white">

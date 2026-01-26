@@ -27,7 +27,7 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: [0.25, 0.4, 0.25, 1] as const,
     },
   },
 };
@@ -94,7 +94,7 @@ const DirectorCard: React.FC<DirectorCardProps> = ({ director, index, isInView }
     >
       <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 h-full flex flex-col">
         {/* Image */}
-        <div className="relative h-64 sm:h-72 md:h-80 bg-gradient-to-br from-[#f0f5f1] to-[#e5f0e7] overflow-hidden flex-shrink-0">
+        <div className="relative h-full md:h-96 bg-gradient-to-br from-[#f0f5f1] to-[#e5f0e7] overflow-hidden flex-shrink-0">
           {director.image ? (
             <img
               src={director.image}
