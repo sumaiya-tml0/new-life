@@ -2,11 +2,10 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import {
   GiMedicines,
-  GiHealing,
   GiLaurelsTrophy,
   GiFactory
 } from "react-icons/gi";
-import { FaUserMd, FaShieldAlt, FaLeaf } from "react-icons/fa";
+import { FaUserMd, FaShieldAlt, FaLeaf, FaTruck } from "react-icons/fa";
 import { BsStars } from "react-icons/bs";
 import bgImage from "../../assets/home/herb_medicine.jpg";
 
@@ -97,9 +96,9 @@ const StatCounter: React.FC<StatCounterProps> = ({
 
 const stats = [
   { end: 76, suffix: "+", label: "Years of Excellence", icon: <GiLaurelsTrophy /> },
-  { end: 500, suffix: "+", label: "Quality Products", icon: <GiMedicines /> },
-  { end: 50, suffix: "K+", label: "Happy Customers", icon: <FaUserMd /> },
-  { end: 4, suffix: "", label: "Medicine Categories", icon: <GiHealing /> },
+  { end: 7, suffix: "k+", label: "Quality Products", icon: <GiMedicines /> },
+  { end: 1, suffix: "M+", label: "Practitioners and Families", icon: <FaUserMd /> },
+  { end: 10000, suffix: "+", label: "Distributors", icon: <FaTruck /> },
 ];
 
 const trustBadges = [

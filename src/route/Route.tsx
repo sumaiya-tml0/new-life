@@ -49,7 +49,7 @@ export const router = createBrowserRouter([
         element: <ProductsLayout />,
       },
       {
-        path: "/product/:id",
+        path: "/product/:slug",
         element: <ProductDetails />,
       },
       {

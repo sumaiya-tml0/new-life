@@ -1,17 +1,19 @@
 import { useParams, useNavigate } from "react-router";
 import { Typography, Button, Tag, Breadcrumb, Tabs } from "antd";
-import {  ArrowLeftOutlined } from "@ant-design/icons";
-import { dummyProducts } from "../data/products";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import { useSingleProduct } from "../hooks/useProducts";
+import { Loading } from "../shared/Loading";
 
 const { Title, Text, Paragraph } = Typography;
 
 const ProductDetails = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
+  const { data: singleProduct, isLoading, error } = useSingleProduct(slug);
 
-  const product = dummyProducts.find((p) => p.id === Number(id));
+  if (isLoading) return <Loading />;
 
-  if (!product) {
+  if (error || !singleProduct) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -26,10 +28,6 @@ const ProductDetails = () => {
     );
   }
 
-  const relatedProducts = dummyProducts
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
-
   const tabItems = [
     {
       key: "description",
@@ -37,14 +35,7 @@ const ProductDetails = () => {
       children: (
         <div className="py-4">
           <Paragraph className="text-gray-600 leading-relaxed">
-            This is a premium quality {product.category.toLowerCase()} product - {product.name}.
-            Made with carefully selected natural ingredients following traditional methods
-            that have been passed down through generations.
-          </Paragraph>
-          <Paragraph className="text-gray-600 leading-relaxed">
-            Our products are manufactured under strict quality control measures to ensure
-            the highest standards of purity and effectiveness. Each batch is tested for
-            quality and potency before being released for sale.
+            {singleProduct?.details?.diseases_text}
           </Paragraph>
         </div>
       ),
@@ -55,24 +46,54 @@ const ProductDetails = () => {
       children: (
         <div className="py-4">
           <Paragraph className="text-gray-600 leading-relaxed">
-            <strong>Dosage:</strong> As directed by the physician or as per the instructions
-            on the label.
-          </Paragraph>
-          <Paragraph className="text-gray-600 leading-relaxed">
-            <strong>Storage:</strong> Store in a cool, dry place away from direct sunlight.
-            Keep out of reach of children.
+            {singleProduct?.details?.how_to_use}
           </Paragraph>
         </div>
       ),
     },
     {
-      key: "ingredients",
-      label: "Ingredients",
+      key: "dosages",
+      label: "Dosages",
       children: (
         <div className="py-4">
           <Paragraph className="text-gray-600 leading-relaxed">
-            Made with 100% natural ingredients sourced from trusted suppliers.
-            Contains no artificial preservatives, colors, or flavors.
+            {singleProduct?.details?.dosages}
+          </Paragraph>
+        </div>
+      ),
+    },
+    {
+      key: "preservation",
+      label: "Preservation",
+      children: (
+        <div className="py-4">
+          <Paragraph className="text-gray-600 leading-relaxed">
+            {singleProduct?.details?.preservation}
+          </Paragraph>
+        </div>
+      ),
+    },
+    {
+      key: "sideEffect",
+      label: "Side effect",
+      children: (
+        <div className="py-4">
+          <Paragraph className="text-gray-600 leading-relaxed">
+            {singleProduct?.details?.side_effects}
+          </Paragraph>
+        </div>
+      ),
+    },
+    {
+      key: "awareness",
+      label: "Awareness / warnings",
+      children: (
+        <div className="py-4">
+          <Paragraph className="text-gray-600 leading-relaxed">
+            {singleProduct?.details?.awareness}
+          </Paragraph>
+          <Paragraph className="text-gray-600 leading-relaxed">
+            {singleProduct?.details?.warnings}
           </Paragraph>
         </div>
       ),
@@ -88,8 +109,16 @@ const ProductDetails = () => {
           items={[
             { title: <a href="/">Home</a> },
             { title: <a href="/products">Products</a> },
-            { title: <a href={`/products/${product.category}`}>{product.category}</a> },
-            { title: product.name },
+            {
+              title: (
+                <a
+                  href={`/products/${singleProduct?.product_type?.subgroup?.group?.name}`}
+                >
+                  {singleProduct?.product_type?.subgroup?.group?.name}
+                </a>
+              ),
+            },
+            { title: singleProduct.name },
           ]}
         />
 
@@ -109,91 +138,60 @@ const ProductDetails = () => {
             {/* Product Image */}
             <div className="w-full lg:w-1/2">
               <div className="h-64 md:h-96 bg-gradient-to-br from-[#f5f7f5] to-[#e8ebe8] rounded-xl flex items-center justify-center relative overflow-hidden">
-                {product.image ? (
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover rounded-xl"
-                  />
-                ) : (
-                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#0b6b31]/10 flex items-center justify-center">
-                    <Text className="text-[#0b6b31] text-sm">Image</Text>
-                  </div>
+                {singleProduct?.images?.map((img) =>
+                  // 1. Check if the image URL exists on the current item 'img'
+                  img?.image_url ? (
+                    <img
+                      key={img?.id} // 2. Always add a unique key in a map
+                      src={img?.image_url}
+                      // 3. Use singleProduct.name for the alt text
+                      alt={singleProduct?.name || "Product image"}
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                  ) : (
+                    <div
+                      key={img.id}
+                      className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#0b6b31]/10 flex items-center justify-center"
+                    >
+                      <span className="text-[#0b6b31] text-sm">No Image</span>
+                    </div>
+                  ),
                 )}
+
                 <Tag className="!absolute !top-4 !left-4 !bg-[#0b6b31] !text-white !border-none !rounded-lg !text-sm !px-3 !py-1">
-                  {product.category}
+                  {singleProduct?.product_type?.subgroup?.group?.name}
                 </Tag>
               </div>
             </div>
 
             {/* Product Info */}
             <div className="w-full lg:w-1/2">
-              <Text className="text-[#2e3191] text-sm uppercase tracking-wide">
+              {/* <Text className="text-[#2e3191] text-sm uppercase tracking-wide">
                 {product.subcategory || product.category}
-              </Text>
-              <Title level={1} className="!text-[#222] !mt-2 !mb-4">
-                {product.name}
+              </Text> */}
+              <Title level={1} className="!text-[#222] !mt-2">
+                {singleProduct?.name}
               </Title>
+              <Text className="text-xs !mb-2">
+                prod_id: {singleProduct?.prod_id}{" "}
+              </Text>
+              <br />
+              <Text className="text-[#2e3191] text-[9px] sm:text-[10px] md:text-[11px] tracking-wide">
+                {singleProduct?.size} {singleProduct?.unit?.code} .{" "}
+                {singleProduct?.product_type?.name}
+              </Text>
+              <Text className="tracking-wide">{singleProduct?.size}</Text>
 
-              <div className="flex items-center gap-4 mb-6">
-                <Title level={2} className="!text-[#0b6b31] !m-0">
-                  ৳{product.price}
-                </Title>
-                <Tag color="green">In Stock</Tag>
-              </div>
-
+              <Paragraph className="text-gray-600 my-6 leading-relaxed">
+                {singleProduct?.details?.effectiveness}
+              </Paragraph>
               <Paragraph className="text-gray-600 mb-6 leading-relaxed">
-                Experience the natural healing power of {product.name}. This premium
-                {" "}{product.category.toLowerCase()} product is crafted using traditional
-                formulations that have been trusted for generations.
+                {singleProduct?.details?.reference_info}
               </Paragraph>
 
-              {/* Quantity Selector */}
-              {/* <div className="flex items-center gap-4 mb-6">
-                <Text className="text-gray-600">Quantity:</Text>
-                <InputNumber
-                  min={1}
-                  max={10}
-                  value={quantity}
-                  onChange={(value) => setQuantity(value || 1)}
-                  className="!w-20"
-                />
-              </div> */}
-
-              {/* Action Buttons */}
-              {/* <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<ShoppingCartOutlined />}
-                  className="!bg-[#0b6b31] !border-[#0b6b31] !rounded-lg !h-12 flex-1"
-                >
-                  Add to Cart
-                </Button>
-                <Button
-                  type="default"
-                  size="large"
-                  icon={<HeartOutlined />}
-                  className="!border-[#0b6b31] !text-[#0b6b31] !rounded-lg !h-12"
-                >
-                  Wishlist
-                </Button>
-              </div> */}
-
-              {/* Product Meta */}
-              <div className="border-t border-gray-200 pt-6 space-y-2">
-                <Text className="text-gray-500 block">
-                  <strong>Category:</strong> {product.category}
-                </Text>
-                {product.subcategory && (
-                  <Text className="text-gray-500 block">
-                    <strong>Type:</strong> {product.subcategory}
-                  </Text>
-                )}
-                <Text className="text-gray-500 block">
-                  <strong>SKU:</strong> NL-{product.id.toString().padStart(4, "0")}
-                </Text>
-              </div>
+              <Title level={2} className="!text-[#0b6b31] !m-0">
+                ৳{singleProduct?.price}
+              </Title>
             </div>
           </div>
 
@@ -202,44 +200,6 @@ const ProductDetails = () => {
             <Tabs items={tabItems} className="product-details-tabs" />
           </div>
         </div>
-
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-12">
-            <Title level={3} className="!text-[#222] !mb-6">
-              Related Products
-            </Title>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {relatedProducts.map((relatedProduct) => (
-                <div
-                  key={relatedProduct.id}
-                  onClick={() => navigate(`/product/${relatedProduct.id}`)}
-                  className="bg-white rounded-xl p-4 cursor-pointer hover:shadow-lg transition-shadow"
-                >
-                  <div className="h-24 md:h-32 bg-gradient-to-br from-[#f5f7f5] to-[#e8ebe8] rounded-lg flex items-center justify-center mb-3 overflow-hidden">
-                    {relatedProduct.image ? (
-                      <img
-                        src={relatedProduct.image}
-                        alt={relatedProduct.name}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-[#0b6b31]/10 flex items-center justify-center">
-                        <Text className="text-[#0b6b31] text-[8px]">Image</Text>
-                      </div>
-                    )}
-                  </div>
-                  <Text className="text-[#222] font-medium text-sm line-clamp-2 block">
-                    {relatedProduct.name}
-                  </Text>
-                  <Text className="text-[#0b6b31] font-semibold">
-                    ৳{relatedProduct.price}
-                  </Text>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

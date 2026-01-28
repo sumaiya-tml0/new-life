@@ -6,26 +6,50 @@ import { Autoplay, Grid } from "swiper/modules";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaLeaf } from "react-icons/fa";
 import { Link } from "react-router";
-import { dummyProducts } from "../../data/products";
 import type { Product } from "../../types/product";
 import ProductCard from "../../components/products/ProductCard";
 
 import "swiper/css";
 import "swiper/css/grid";
 
-const categories = ["Ayurvedic", "Homeo", "Unani", "Herbal"];
+import {
+  useItemsByCategory,
+  useProductsCategories,
+} from "../../hooks/useProducts";
+import { Loading } from "../../shared/Loading";
 
 interface ProductSwiperProps {
   products: Product[];
+  isLoading: boolean
 }
 
-const ProductSwiper: React.FC<ProductSwiperProps> = ({ products }) => {
+const ProductSwiper: React.FC<ProductSwiperProps> = ({ products, isLoading }) => {
   const swiperRef = useRef<SwiperType | null>(null);
+  // If loading or no products, show a placeholder or nothing
+  if (isLoading) return null;
+
+  // 2. If loading is done and there are no products, show the empty state
+  if (!products || products.length === 0) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center py-20 text-center"
+      >
+        <div className="bg-gray-100 p-6 rounded-full mb-4">
+          <FaLeaf className="text-gray-300 text-4xl" />
+        </div>
+        <h3 className=" font-medium text-gray-700">No Products Found</h3>
+     
+      </motion.div>
+    );
+  }
 
   return (
     <div className="relative">
       <AnimatePresence mode="wait">
         <Swiper
+        key={products.length}
           onSwiper={(swiper) => (swiperRef.current = swiper)}
           slidesPerView={1.5}
           grid={{
@@ -33,47 +57,47 @@ const ProductSwiper: React.FC<ProductSwiperProps> = ({ products }) => {
             fill: "row",
           }}
           spaceBetween={12}
-          loop={products.length > 6}
-          autoplay={{
-            delay: 4000,
-            disableOnInteraction: false,
-          }}
+          loop={products?.length > 6}
+          // autoplay={{
+          //   delay: 4000,
+          //   disableOnInteraction: false,
+          // }}
           modules={[Autoplay, Grid]}
           breakpoints={{
             320: {
               slidesPerView: 1.5,
               spaceBetween: 10,
-              grid: { rows: 2, fill: "row" }
+              grid: { rows: 2, fill: "row" },
             },
             400: {
               slidesPerView: 2,
               spaceBetween: 12,
-              grid: { rows: 2, fill: "row" }
+              grid: { rows: 2, fill: "row" },
             },
             640: {
               slidesPerView: 2.5,
               spaceBetween: 14,
-              grid: { rows: 2, fill: "row" }
+              grid: { rows: 2, fill: "row" },
             },
             768: {
               slidesPerView: 3,
               spaceBetween: 16,
-              grid: { rows: 2, fill: "row" }
+              grid: { rows: 2, fill: "row" },
             },
             1024: {
               slidesPerView: 4,
               spaceBetween: 16,
-              grid: { rows: 2, fill: "row" }
+              grid: { rows: 2, fill: "row" },
             },
             1280: {
               slidesPerView: 5,
               spaceBetween: 20,
-              grid: { rows: 2, fill: "row" }
+              grid: { rows: 2, fill: "row" },
             },
           }}
           className="product-category-swiper"
         >
-          {products.map((product) => (
+          {products?.map((product) => (
             <SwiperSlide key={product.id}>
               <ProductCard product={product} compact />
             </SwiperSlide>
@@ -82,7 +106,7 @@ const ProductSwiper: React.FC<ProductSwiperProps> = ({ products }) => {
       </AnimatePresence>
 
       {/* Custom Navigation */}
-      <div className="flex justify-center gap-3 sm:gap-4 mt-4 sm:mt-6">
+     {!isLoading &&  <div className="flex justify-center gap-3 sm:gap-4 mt-4 sm:mt-6">
         <motion.button
           onClick={() => swiperRef.current?.slidePrev()}
           className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border-2 border-[#0b6b31] flex items-center justify-center text-[#0b6b31] hover:bg-[#0b6b31] hover:text-white transition-all duration-300 shadow-md"
@@ -99,32 +123,40 @@ const ProductSwiper: React.FC<ProductSwiperProps> = ({ products }) => {
         >
           <FaChevronRight className="text-sm" />
         </motion.button>
-      </div>
+      </div>}
     </div>
   );
 };
 
 const ProductCategoryTab: React.FC = () => {
-  const [activeKey, setActiveKey] = useState("Ayurvedic");
+  const { data: categoriesData } = useProductsCategories();
+  const [activeKey, setActiveKey] = useState<string>("Ayurvedic");
+  const { data: productItems , isLoading } = useItemsByCategory(activeKey);
+
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-50px" });
 
-  const getProductsByCategory = (category: string) => {
-    return dummyProducts.filter((product) => product.category === category);
-  };
+  // const getProductsByCategory = (category: string) => {
+  //   return dummyProducts.filter((product) => product.category === category);
+  // };
 
-  const tabItems = categories.map((category) => ({
-    key: category,
+  const tabItems = categoriesData?.map((category) => ({
+    key: category?.name,
     label: (
       <span className="px-1 sm:px-2 text-sm sm:text-base font-medium">
-        {category === "Homeo" ? "Homeopathic" : category}
+        {category.name}
       </span>
     ),
-    children: <ProductSwiper products={getProductsByCategory(category)} />,
+   children: activeKey === category.name ? (
+      <ProductSwiper products={productItems?.results} isLoading={isLoading} />
+    ) : <div className="h-[400px]" />,
   }));
 
   return (
-    <section ref={sectionRef} className="relative py-10 sm:py-14 px-3 sm:px-4 md:px-12 overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative py-10 sm:py-14 px-3 sm:px-4 md:px-12 overflow-hidden"
+    >
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#f8faf8] via-[#f0f5f1] to-[#f8faf8]" />
 
@@ -202,6 +234,11 @@ const ProductCategoryTab: React.FC = () => {
                 }}
                 className="product-tabs"
               />
+              {isLoading && (
+                <div className="text-center py-10 text-gray-400">
+                  <Loading />
+                </div>
+              )}
             </div>
           </ConfigProvider>
         </motion.div>
@@ -213,15 +250,13 @@ const ProductCategoryTab: React.FC = () => {
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.5 }}
         >
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link
               to={`/products/${activeKey}`}
               className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 bg-[#0b6b31] text-white text-xs sm:text-sm md:text-base font-medium rounded-full hover:bg-[#095228] transition-colors shadow-lg hover:shadow-xl"
             >
-              View All {activeKey === "Homeo" ? "Homeopathic" : activeKey} Products
+              View All {activeKey === "Homeo" ? "Homeopathic" : activeKey}{" "}
+              Products
               <FaChevronRight className="text-[10px] sm:text-xs" />
             </Link>
           </motion.div>

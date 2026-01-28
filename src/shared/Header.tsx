@@ -11,17 +11,22 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isHomePage = location.pathname === "/";
-  const { setSearchQuery, setCurrentCategory, clearSubcategories } = useProductStore();
+  const { setSearchQuery, setCurrentCategory, clearSubcategories } =
+    useProductStore();
   const [searchOpen, setSearchOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const searchResults = localSearch.trim()
-    ? dummyProducts.filter((product) =>
-        product.name.toLowerCase().includes(localSearch.toLowerCase()) ||
-        product.category.toLowerCase().includes(localSearch.toLowerCase()) ||
-        (product.subcategory && product.subcategory.toLowerCase().includes(localSearch.toLowerCase()))
+    ? dummyProducts.filter(
+        (product) =>
+          product.name.toLowerCase().includes(localSearch.toLowerCase()) ||
+          product.category.toLowerCase().includes(localSearch.toLowerCase()) ||
+          (product.subcategory &&
+            product.subcategory
+              .toLowerCase()
+              .includes(localSearch.toLowerCase())),
       )
     : [];
 
@@ -35,7 +40,10 @@ const Header = () => {
   // Close search when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
         setSearchOpen(false);
       }
     };
@@ -164,9 +172,11 @@ const Header = () => {
       ],
     },
     {
-      label: <Link to="/publication" style={{ color: "inherit" }}>
-              New Life Foundation
-            </Link>,
+      label: (
+        <Link to="/publication" style={{ color: "inherit" }}>
+          New Life Foundation
+        </Link>
+      ),
       key: "newlife",
     },
     {
@@ -196,6 +206,15 @@ const Header = () => {
   ];
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsSticky(window.scrollY > 80);
+    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Determine selected keys based on current path
   const getSelectedKeys = () => {
@@ -235,7 +254,11 @@ const Header = () => {
         {/* Logo - Center */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
           <Link to="/">
-            <img src={logo} alt="Logo" className="w-28 sm:w-36 md:w-40 lg:w-48 h-auto" />
+            <img
+              src={logo}
+              alt="Logo"
+              className="w-28 sm:w-36 md:w-40 lg:w-48 h-auto"
+            />
           </Link>
           <Tag
             className="!m-0"
@@ -253,7 +276,7 @@ const Header = () => {
 
         {/* Mobile Menu Toggle - Only visible below md */}
         <button
-          className={`md:hidden text-xl sm:text-2xl p-1 ${isHomePage ? "text-white" : "text-[#222]"}`}
+          className={`lg:hidden text-xl sm:text-2xl p-1 ${isHomePage ? "text-white" : "text-[#222]"}`}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -272,12 +295,14 @@ const Header = () => {
             }`}
           >
             <FiSearch className="text-lg md:text-xl" />
-            <span className="text-sm md:text-base hidden sm:inline">Search</span>
+            <span className="text-sm md:text-base hidden sm:inline">
+              Search
+            </span>
           </div>
 
           {/* Expanded Search Bar - Absolute positioned */}
           {searchOpen && (
-            <div className="absolute top-18 -translate-y-1/2 right-0 flex items-center gap-2 bg-white rounded-full shadow-lg px-4 py-2 w-64 sm:w-80 md:w-96 z-50">
+            <div className="absolute top-18 lg:top-4 -translate-y-1/2 right-0 md:right-34 lg:right-0 flex items-center gap-2 bg-white rounded-full shadow-lg px-4 py-2 w-64 sm:w-80 md:w-96 z-50">
               <FiSearch className="text-lg text-[#0b6b31] flex-shrink-0" />
               <input
                 ref={searchInputRef as React.RefObject<HTMLInputElement>}
@@ -297,19 +322,33 @@ const Header = () => {
 
           {/* Search Results Dropdown */}
           {searchOpen && localSearch.trim() && (
-            <div className="absolute top-full right-0 mt-18 bg-white rounded-lg shadow-xl border border-gray-200 max-h-80 overflow-y-auto z-50 w-64 sm:w-80 md:w-96">
+            <div className="absolute top-full right-0 md:right-34 lg:right-0 mt-18 lg:mt-4 bg-white rounded-lg shadow-xl border border-gray-200 max-h-80 overflow-y-auto z-50 w-64 sm:w-80 md:w-96">
               {searchResults.length > 0 ? (
                 <div className="p-2">
-                  <p className="text-xs text-gray-500 px-2 py-1">{searchResults.length} results found</p>
+                  <p className="text-xs text-gray-500 px-2 py-1">
+                    {searchResults.length} results found
+                  </p>
                   {searchResults.slice(0, 8).map((product) => (
                     <div
                       key={product.id}
                       onClick={() => handleProductClick(product.id)}
-                      className="p-2 rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
+                      className="p-2 rounded-md cursor-pointer hover:bg-gray-50 transition-colors flex items-center gap-2"
                     >
-                      <div className="font-medium text-sm text-[#222]">{product.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {product.category} {product.subcategory && `> ${product.subcategory}`}
+                      <div>
+                        <img
+                          style={{ width: 48, margin: "0 auto" }}
+                          src={product.image}
+                          alt=""
+                        />
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm text-[#222]">
+                          {product.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {product.category}{" "}
+                          {product.subcategory && `> ${product.subcategory}`}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -333,16 +372,38 @@ const Header = () => {
       </div>
 
       {/* Second Line: Menu Items - Desktop */}
-      <div className="hidden md:flex justify-center py-1 lg:py-2 px-4">
+      <div
+        className={`${isSticky ? "fixed top-0 bg-[#deebe1] w-full flex justify-between px-12" : "justify-center"} hidden lg:flex  py-1 lg:py-2 px-4`}
+      >
+        {isSticky ? <Link to="/"><img src={logo} style={{ width: 120 }} /></Link> : ""}
+
         <Menu
           mode="horizontal"
           onClick={onClick}
           selectedKeys={selectedKeys}
           items={items}
           disabledOverflow={true}
-          className={`!bg-transparent !border-none ${isHomePage ? "header-menu" : "header-menu-solid"}`}
+          className={`!bg-transparent !border-none ${isHomePage ? (isSticky ? "header-menu-solid" : "header-menu") : "header-menu-solid"}`}
           style={{ background: "transparent", borderBottom: "none" }}
         />
+
+        {isSticky && (
+          <div
+            onClick={toggleSearch}
+            className={`flex items-center gap-2 cursor-pointer transition-colors ${
+              isHomePage
+                ? isSticky
+                  ? "text-[#222] hover:text-[#0b6b31]"
+                  : "text-white hover:text-white/80 "
+                : "text-[#222] hover:text-[#0b6b31]"
+            }`}
+          >
+            <FiSearch className="text-lg md:text-xl" />
+            <span className="text-sm md:text-base hidden sm:inline">
+              Search
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Mobile Menu Drawer */}
@@ -372,7 +433,6 @@ const Header = () => {
           }}
           theme="light"
         />
-   
       </Drawer>
     </header>
   );
