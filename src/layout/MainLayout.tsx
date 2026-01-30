@@ -68,6 +68,9 @@ const MainLayout = () => {
               borderRadius: 8,
               colorBorderBg: "#e0e0e0",
             },
+            Pagination: {
+              colorPrimary: "#fff",
+            },
           },
         }}
       >

@@ -1,4 +1,4 @@
-import { Checkbox } from "antd";
+import { Radio } from "antd";
 import { useNavigate } from "react-router";
 import { useProductStore } from "../../store/useProductStore";
 
@@ -9,21 +9,40 @@ interface CategoryItemProps {
   parentCategory?: string;
 }
 
-const CategoryItem = ({ name, isSubcategory = false, productCount, parentCategory }: CategoryItemProps) => {
-  const { toggleSubcategory, selectedSubcategories, currentCategory, setCurrentCategory } = useProductStore();
+const CategoryItem = ({
+  name,
+  isSubcategory = false,
+  productCount,
+  parentCategory,
+}: CategoryItemProps) => {
+  const {
+    selectedSubgroup,
+    setSelectedSubgroup,
+    currentCategory,
+    setCurrentCategory,
+  } = useProductStore();
   const navigate = useNavigate();
-  const selected = selectedSubcategories.includes(name);
+  const selected = selectedSubgroup === name;
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
     // If selecting subcategory from different category, navigate to that category
-    if (parentCategory && currentCategory && parentCategory !== currentCategory) {
+    if (
+      parentCategory &&
+      currentCategory &&
+      parentCategory !== currentCategory
+    ) {
       setCurrentCategory(parentCategory);
       navigate(`/products/${parentCategory}`);
     }
 
-    toggleSubcategory(name);
+    // Toggle: if already selected, deselect; otherwise select this one
+    if (selected) {
+      setSelectedSubgroup(null);
+    } else {
+      setSelectedSubgroup(name);
+    }
   };
 
   if (!isSubcategory) {
@@ -45,7 +64,7 @@ const CategoryItem = ({ name, isSubcategory = false, productCount, parentCategor
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "2px",
         padding: "6px 0",
         cursor: "pointer",
         backgroundColor: selected ? "#0b6b3115" : "transparent",
@@ -54,18 +73,10 @@ const CategoryItem = ({ name, isSubcategory = false, productCount, parentCategor
       }}
       onClick={handleClick}
     >
-      <Checkbox checked={selected} />
-      <span
-        style={{
-          color: "#0b6b31",
-          fontSize: "14px",
-          fontWeight: selected ? "600" : "400",
-        }}
-      >
-        {name}
-      </span>
+      <Radio checked={selected}>{name}</Radio>
+
       {productCount !== undefined && (
-        <span style={{ color: "#999", fontSize: "12px" }}>
+        <span style={{ color: "#999", fontSize: "12px", marginLeft: "4px" }}>
           ({productCount})
         </span>
       )}

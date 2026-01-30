@@ -10,4 +10,5 @@ export interface Product {
   subgroup_name?: string;
   type_name: string;
   primary_image?: string;
+  image_url: string
 }

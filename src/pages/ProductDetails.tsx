@@ -3,6 +3,7 @@ import { Typography, Button, Tag, Breadcrumb, Tabs } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useSingleProduct } from "../hooks/useProducts";
 import { Loading } from "../shared/Loading";
+import type { Product } from "@/types/product";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -138,7 +139,7 @@ const ProductDetails = () => {
             {/* Product Image */}
             <div className="w-full lg:w-1/2">
               <div className="h-64 md:h-96 bg-gradient-to-br from-[#f5f7f5] to-[#e8ebe8] rounded-xl flex items-center justify-center relative overflow-hidden">
-                {singleProduct?.images?.map((img) =>
+                {singleProduct?.images?.map((img: Product) =>
                   // 1. Check if the image URL exists on the current item 'img'
                   img?.image_url ? (
                     <img

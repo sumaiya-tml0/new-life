@@ -3,9 +3,10 @@ import { useState, useRef, useEffect } from "react";
 import { FiSearch, FiMenu, FiX } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useProductStore } from "../store/useProductStore";
-import { dummyProducts } from "../data/products";
 
 import logo from "../assets/logo.png";
+import { useProductsCategories, useSearchProduct } from "../hooks/useProducts";
+import type { Product } from "@/types/product";
 
 const Header = () => {
   const location = useLocation();
@@ -13,22 +14,27 @@ const Header = () => {
   const isHomePage = location.pathname === "/";
   const { setSearchQuery, setCurrentCategory, clearSubcategories } =
     useProductStore();
+    const {data: categories} = useProductsCategories()
   const [searchOpen, setSearchOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState("");
+
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  const searchResults = localSearch.trim()
-    ? dummyProducts.filter(
-        (product) =>
-          product.name.toLowerCase().includes(localSearch.toLowerCase()) ||
-          product.category.toLowerCase().includes(localSearch.toLowerCase()) ||
-          (product.subcategory &&
-            product.subcategory
-              .toLowerCase()
-              .includes(localSearch.toLowerCase())),
-      )
-    : [];
+  // 1. Create the debounced value (waits 300ms after last keystroke)
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(localSearch);
+    }, 300); // 300ms is the "sweet spot" for search typing
+
+    return () => clearTimeout(timer);
+  }, [localSearch]);
+
+  // 2. Pass ONLY the debounced value to your API hook
+  const { data: searchData, isLoading } = useSearchProduct(debouncedSearch);
+  const searchResults = searchData?.results || [];
 
   // Focus input when search opens
   useEffect(() => {
@@ -74,10 +80,10 @@ const Header = () => {
     }
   };
 
-  const handleProductClick = (productId: number) => {
+  const handleProductClick = (productSlug: string) => {
     setSearchOpen(false);
     setLocalSearch("");
-    navigate(`/products?highlight=${productId}`);
+    navigate(`/product/${productSlug}`);
   };
 
   const toggleSearch = () => {
@@ -136,40 +142,23 @@ const Header = () => {
         </Link>
       ),
       key: "ourProducts",
-      children: [
-        {
-          key: "ayurvedic",
-          label: (
-            <Link to="/products/Ayurvedic" style={{ color: "inherit" }}>
-              Ayurvedic
-            </Link>
-          ),
-        },
-        {
-          key: "homeo",
-          label: (
-            <Link to="/products/Homeo" style={{ color: "inherit" }}>
-              Homeopathic
-            </Link>
-          ),
-        },
-        {
-          key: "unani",
-          label: (
-            <Link to="/products/Unani" style={{ color: "inherit" }}>
-              Unani
-            </Link>
-          ),
-        },
-        {
-          key: "herbal",
-          label: (
-            <Link to="/products/Herbal" style={{ color: "inherit" }}>
-              Herbal
-            </Link>
-          ),
-        },
-      ],
+      children: categories && categories.length > 0
+        ? categories.map((category: Product) => ({
+            key: category.name.toLowerCase(),
+            label: (
+              <span
+                onClick={() => {
+                  setCurrentCategory(category.name);
+                  clearSubcategories();
+                  navigate(`/products/${category.name}`);
+                }}
+                style={{ color: "inherit", cursor: "pointer" }}
+              >
+                {category.name === "Homeo" ? "Homeopathic" : category.name}
+              </span>
+            ),
+          }))
+        : undefined,
     },
     {
       label: (
@@ -224,11 +213,21 @@ const Header = () => {
     if (path === "/company-profile") return ["companyProfile", "aboutUs"];
     if (path === "/chairman-message") return ["chairmanMessage", "aboutUs"];
     if (path === "/board-of-directors") return ["boardOfDirectors", "aboutUs"];
-    if (path === "/products/Ayurvedic") return ["ayurvedic", "ourProducts"];
-    if (path === "/products/Homeo") return ["homeo", "ourProducts"];
-    if (path === "/products/Unani") return ["unani", "ourProducts"];
-    if (path === "/products/Herbal") return ["herbal", "ourProducts"];
-    if (path.startsWith("/products")) return ["ourProducts"];
+    
+    // Check if path matches any category dynamically
+    if (path.startsWith("/products/")) {
+      const categoryName = path.split("/products/")[1];
+      if (categoryName && categories) {
+        const matchedCategory = categories.find(
+          (cat: Product) => cat.name === categoryName
+        );
+        if (matchedCategory) {
+          return [matchedCategory.name.toLowerCase(), "ourProducts"];
+        }
+      }
+      return ["ourProducts"];
+    }
+    
     if (path === "/publication") return ["newlife"];
     if (path === "/news-events") return ["NewsEvents"];
     if (path === "/feedback") return ["feedback"];
@@ -321,49 +320,51 @@ const Header = () => {
           )}
 
           {/* Search Results Dropdown */}
-          {searchOpen && localSearch.trim() && (
-            <div className="absolute top-full right-0 md:right-34 lg:right-0 mt-18 lg:mt-4 bg-white rounded-lg shadow-xl border border-gray-200 max-h-80 overflow-y-auto z-50 w-64 sm:w-80 md:w-96">
-              {searchResults.length > 0 ? (
-                <div className="p-2">
-                  <p className="text-xs text-gray-500 px-2 py-1">
-                    {searchResults.length} results found
-                  </p>
-                  {searchResults.slice(0, 8).map((product) => (
+          {searchOpen && localSearch.length >= 2 && (
+            <div className="absolute top-full right-0 mt-18 lg:mt-3 bg-white rounded-xl shadow-2xl border border-gray-100 max-h-[400px] overflow-y-auto z-[100] w-72 sm:w-80 md:w-96 py-2">
+              {isLoading ? (
+                <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-[#0b6b31] border-t-transparent rounded-full animate-spin"></div>
+                  Searching for "{localSearch}"...
+                </div>
+              ) : searchResults.length > 0 ? (
+                <>
+                  {searchResults.map((product: Product) => (
                     <div
                       key={product.id}
-                      onClick={() => handleProductClick(product.id)}
-                      className="p-2 rounded-md cursor-pointer hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      onClick={() => handleProductClick(product.slug)}
+                      className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-4 border-b border-gray-50 last:border-none transition-colors"
                     >
-                      <div>
+                      <div  className="w-12 h-12 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
                         <img
-                          style={{ width: 48, margin: "0 auto" }}
-                          src={product.image}
-                          alt=""
+                          src={product.primary_image}
+                          alt={product.name}
+                          style={{height: "100%"}}
+                          className="w-full object-cover"
                         />
                       </div>
-                      <div>
-                        <div className="font-medium text-sm text-[#222]">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-semibold text-gray-800 truncate">
                           {product.name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {product.category}{" "}
-                          {product.subcategory && `> ${product.subcategory}`}
-                        </div>
+                        </h4>
+                        <p className="text-xs text-[#0b6b31] font-medium">
+                          {product.group_name} • {product.price} BDT
+                        </p>
                       </div>
                     </div>
                   ))}
-                  {searchResults.length > 8 && (
-                    <button
-                      onClick={handleSearch}
-                      className="w-full text-center text-sm text-[#0b6b31] hover:bg-gray-50 py-2 rounded-md transition-colors"
-                    >
-                      View all {searchResults.length} results
-                    </button>
-                  )}
-                </div>
+                  <button
+                    onClick={handleSearch}
+                    className="w-full py-3 text-center text-sm font-medium text-[#0b6b31] bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    View All Results
+                  </button>
+                </>
               ) : (
-                <div className="text-center py-6 text-gray-500 text-sm">
-                  No products found for "{localSearch}"
+                <div className="p-8 text-center">
+                  <p className="text-sm text-gray-500">
+                    No products found for "{localSearch}"
+                  </p>
                 </div>
               )}
             </div>
@@ -375,7 +376,13 @@ const Header = () => {
       <div
         className={`${isSticky ? "fixed top-0 bg-[#deebe1] w-full flex justify-between px-12" : "justify-center"} hidden lg:flex  py-1 lg:py-2 px-4`}
       >
-        {isSticky ? <Link to="/"><img src={logo} style={{ width: 120 }} /></Link> : ""}
+        {isSticky ? (
+          <Link to="/">
+            <img src={logo} style={{ width: 120 }} />
+          </Link>
+        ) : (
+          ""
+        )}
 
         <Menu
           mode="horizontal"

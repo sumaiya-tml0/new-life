@@ -1,80 +1,26 @@
 import { Collapse, ConfigProvider, Typography } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import CategoryItem from "./CategoryItem";
-import { dummyProducts } from "../../data/products";
+import { useProductsCategories } from "../../hooks/useProducts";
+import type { Product } from "@/types/product";
 
 const { Title } = Typography;
 
-const categories = [
-  {
-    name: "Ayurvedic",
-    subcategories: [
-      "Churna",
-      "Vati & Gutika",
-      "Asava & Arishta",
-      "Kwath & Kadha",
-      "Tailam",
-      "Ghrita",
-      "Rasayana",
-      "Guggulu",
-    ],
-  },
-  {
-    name: "Homeo",
-    subcategories: [
-      "Mother Tincture",
-      "Dilution",
-      "Homoeo Combination",
-      "Bio-Chemic",
-      "Bio Combination",
-      "Trituration Tablet",
-      "Trituration Powder",
-      "NL Series",
-      "Homeo Ointment",
-    ],
-  },
-  {
-    name: "Unani",
-    subcategories: [
-      "Majun",
-      "Habbe",
-      "Sharbat",
-      "Roghan",
-      "Arq",
-      "Khamira",
-      "Jawarish",
-      "Safoof",
-    ],
-  },
-  {
-    name: "Herbal",
-    subcategories: [
-      "Herbal Juice",
-      "Herbal Capsules",
-      "Herbal Syrup",
-      "Herbal Tea",
-      "Herbal Oil",
-      "Herbal Powder",
-      "Herbal Cream",
-    ],
-  },
-];
 
-const getProductCount = (subcategory: string) => {
-  return dummyProducts.filter((p) => p.subcategory === subcategory).length;
-};
+const CategorySidebar = () => {
+  const {data: categoriesData} = useProductsCategories()
 
-const collapseItems = categories.map((category) => ({
+const collapseItems = categoriesData?.map((category: Product) => ({
   key: category.name,
   label: <CategoryItem name={category.name} />,
   children: (
     <div style={{ paddingLeft: "8px" }}>
-      {category.subcategories.map((sub) => (
+      {category?.subgroups?.map((sub:Product) => (
         <CategoryItem
-          key={sub}
-          name={sub}
+          key={sub.id}
+          name={sub.name}
           isSubcategory
-          productCount={getProductCount(sub)}
+          productCount={sub.product_count}
           parentCategory={category.name}
         />
       ))}
@@ -88,7 +34,6 @@ const collapseItems = categories.map((category) => ({
   },
 }));
 
-const CategorySidebar = () => {
   return (
     <div>
       <Title level={4} style={{ color: "#0b6b31", marginBottom: "16px" }}>
@@ -109,7 +54,7 @@ const CategorySidebar = () => {
         <Collapse
           items={collapseItems}
           bordered={false}
-          expandIconPosition="end"
+          expandIconPlacement="end"
           expandIcon={({ isActive }) => (
             <DownOutlined
               style={{

@@ -140,7 +140,7 @@ const ProductCategoryTab: React.FC = () => {
   //   return dummyProducts.filter((product) => product.category === category);
   // };
 
-  const tabItems = categoriesData?.map((category) => ({
+  const tabItems = categoriesData?.map((category: Product) => ({
     key: category?.name,
     label: (
       <span className="px-1 sm:px-2 text-sm sm:text-base font-medium">

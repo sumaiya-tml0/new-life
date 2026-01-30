@@ -127,7 +127,8 @@ const ProductCard = ({ product, compact = false }: ProductCardProps) => {
               <img
                 src={product.primary_image}
                 alt={product.name}
-                className="w-full h-full object-cover rounded-lg"
+                style={{height: "100%"}}
+                className="w-full object-cover rounded-lg"
               />
             ) : (
               <div className="w-20 h-20 rounded-full bg-[#0b6b31]/10 flex items-center justify-center">

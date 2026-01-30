@@ -1,40 +1,63 @@
-import { Row, Col, Empty, Typography, Tag } from "antd";
-import ProductCard from "./ProductCard";
-import { dummyProducts } from "../../data/products";
+import { Typography, Tag, Row, Col, Spin, Pagination } from "antd";
 import { useProductStore } from "../../store/useProductStore";
+import { useAllProducts, usefilterProductsBySubgroup, useItemsByCategory } from "../../hooks/useProducts";
+import ProductCard from "./ProductCard";
+import { useState } from "react";
 
 const { Text, Title } = Typography;
 
 const ProductGrid = () => {
-  const { currentCategory, selectedSubcategories, toggleSubcategory, clearSubcategories, searchQuery, clearSearch } = useProductStore();
+  const [currentPage, setCurrentPage] = useState(1);
+  const {
+    currentCategory,
+    selectedSubgroup,
+    searchQuery,
+    clearSearch,
+    setSelectedSubgroup,
+  } = useProductStore();
 
-  // Filter products based on search query, current category and selected subcategories
-  const filteredProducts = dummyProducts.filter((product) => {
-    // First filter by search query if present
-    if (searchQuery) {
+  // Fetch all products when no category/subgroup is selected
+  const { data: allProductsData, isLoading: allLoading } = useAllProducts(
+    [],
+    currentPage,
+  );
+
+  // Fetch products by category
+  const { data: categoryData, isLoading: categoryLoading } = useItemsByCategory(
+    currentCategory || "",
+  );
+
+  // Fetch filtered products when a subgroup is selected
+  const { data: filteredData, isLoading: filteredLoading } = usefilterProductsBySubgroup(
+    selectedSubgroup || "",
+  );
+
+  // Priority: subgroup > category > all products
+  const data = selectedSubgroup
+    ? filteredData
+    : currentCategory
+      ? categoryData
+      : allProductsData;
+  const isLoading = selectedSubgroup
+    ? filteredLoading
+    : currentCategory
+      ? categoryLoading
+      : allLoading;
+
+  // Note: Adjust 'data.results' and 'data.count' based on your actual API response structure
+  const products = data?.results || [];
+  const totalItems = data?.count || 0;
+
+  // 2. Client-side search filtering (if your API doesn't handle search)
+  const filteredProducts =
+    products?.results?.filter((product) => {
+      if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
-      const matchesSearch =
+      return (
         product.name.toLowerCase().includes(query) ||
-        product.category.toLowerCase().includes(query) ||
-        (product.subcategory && product.subcategory.toLowerCase().includes(query));
-      if (!matchesSearch) return false;
-    }
-
-    // If no category selected, show all products (that match search)
-    if (!currentCategory) {
-      if (selectedSubcategories.length === 0) return true;
-      return product.subcategory && selectedSubcategories.includes(product.subcategory);
-    }
-
-    // Filter by current category
-    if (product.category !== currentCategory) return false;
-
-    // If no subcategory selected, show all products in this category
-    if (selectedSubcategories.length === 0) return true;
-
-    // Filter by selected subcategories
-    return product.subcategory && selectedSubcategories.includes(product.subcategory);
-  });
+        product.category?.toLowerCase().includes(query)
+      );
+    }) || [];
 
   return (
     <div>
@@ -54,52 +77,58 @@ const ProductGrid = () => {
 
       {/* Category title */}
       {currentCategory && !searchQuery && (
-        <Title level={3} className="!text-xl sm:!text-2xl md:!text-3xl !text-[#0b6b31] !mb-3 sm:!mb-4">
-          {currentCategory}
+        <Title
+          level={3}
+          className="!text-xl sm:!text-2xl md:!text-3xl !text-[#0b6b31] !mb-3 sm:!mb-4"
+        >
+          {currentCategory || "All Products"}
         </Title>
       )}
 
-      {/* Active filters */}
-      {selectedSubcategories.length > 0 && (
+      {/* Active filter */}
+      {selectedSubgroup && (
         <div className="mb-3 sm:mb-4 flex items-center flex-wrap gap-2">
-          <Text className="text-gray-600 text-sm">Filters:</Text>
-          {selectedSubcategories.map((sub) => (
-            <Tag
-              key={sub}
-              closable
-              onClose={() => toggleSubcategory(sub)}
-              className="!bg-[#0b6b31] !text-white !border-none !rounded text-xs sm:text-sm"
-            >
-              {sub}
-            </Tag>
-          ))}
+          <Text className="text-gray-600 text-sm">Filter:</Text>
           <Tag
-            onClick={clearSubcategories}
-            className="!bg-transparent !text-[#0b6b31] !border !border-[#0b6b31] !rounded cursor-pointer text-xs sm:text-sm hover:!bg-[#0b6b31] hover:!text-white transition-colors"
+            closable
+            onClose={() => setSelectedSubgroup(null)}
+            className="!bg-[#0b6b31] !text-white !border-none !rounded text-xs sm:text-sm"
           >
-            Clear All
+            {selectedSubgroup}
           </Tag>
         </div>
       )}
 
-      {/* Results count */}
-      <div className="mb-3 sm:mb-4">
-        <Text className="text-gray-600 text-sm">
-          Showing {filteredProducts.length} products
-        </Text>
-      </div>
-
-      {/* Product grid */}
-      {filteredProducts.length === 0 ? (
-        <Empty description="No products found" />
+      {/* Results Section */}
+      {isLoading ? (
+        <div className="flex justify-center py-10">
+          <Spin size="large" />
+        </div>
       ) : (
-        <Row gutter={[12, 12]} className="sm:gutter-[16,16]">
-          {filteredProducts.map((product) => (
-            <Col key={product.id} xs={12} sm={12} md={8} lg={6}>
-              <ProductCard product={product} />
-            </Col>
-          ))}
-        </Row>
+        <>
+          <Row gutter={[16, 16]}>
+            {products.map((product) => (
+              <Col key={product.id} xs={12} md={8} lg={6}>
+                <ProductCard product={product} />
+              </Col>
+            ))}
+          </Row>
+
+          {/* Pagination Component */}
+          <div className="flex justify-center mt-10 mb-6">
+            <Pagination
+              current={currentPage}
+              total={totalItems}
+              pageSize={24}
+              onChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo(0, 0); // Scroll to top on page change
+              }}
+              showSizeChanger={false}
+              responsive
+            />
+          </div>
+        </>
       )}
     </div>
   );

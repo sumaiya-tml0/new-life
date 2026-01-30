@@ -2,9 +2,9 @@ import { Layout, Drawer, Button } from "antd";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { FiFilter, FiX } from "react-icons/fi";
+import { useProductStore } from "../store/useProductStore";
 import CategorySidebar from "../components/products/CategorySidebar";
 import ProductGrid from "../components/products/ProductGrid";
-import { useProductStore } from "../store/useProductStore";
 
 const ProductsLayout = () => {
   const { category } = useParams();
