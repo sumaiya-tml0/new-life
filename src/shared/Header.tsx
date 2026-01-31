@@ -353,12 +353,12 @@ const Header = () => {
                       </div>
                     </div>
                   ))}
-                  <button
+                  {/* <button
                     onClick={handleSearch}
                     className="w-full py-3 text-center text-sm font-medium text-[#0b6b31] bg-gray-50 hover:bg-gray-100 transition-colors"
                   >
                     View All Results
-                  </button>
+                  </button> */}
                 </>
               ) : (
                 <div className="p-8 text-center">

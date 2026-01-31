@@ -147,7 +147,8 @@ const ProductDetails = () => {
                       src={img?.image_url}
                       // 3. Use singleProduct.name for the alt text
                       alt={singleProduct?.name || "Product image"}
-                      className="w-full h-full object-cover rounded-xl"
+                      style={{height: "100%"}}
+                      className="w-full object-cover rounded-xl"
                     />
                   ) : (
                     <div
