@@ -3,6 +3,7 @@ import {
   filterProductsBySubgroup,
   getAllProducts,
   getFilteredProducts,
+  getRelatedProducts,
   getSingleProduct,
   productCategory,
   searchProduct,
@@ -21,8 +22,7 @@ export const useProducts = (filters: ProductFilters) =>
 export const useAllProducts = (subcategories: string[], page: number) =>
   useQuery({
     queryKey: ["product", subcategories, page],
-    queryFn: () =>
-      getAllProducts({ page }).then((res) => res?.data),
+    queryFn: () => getAllProducts({ page }).then((res) => res?.data),
   });
 
 export const useSearchProduct = (searchTerm: string) =>
@@ -104,7 +104,7 @@ export const useProductsByPriceRange = (minPrice: number, maxPrice: number) =>
     queryKey: ["products-by-price", minPrice, maxPrice],
     queryFn: () =>
       getFilteredProducts({ min_price: minPrice, max_price: maxPrice }).then(
-        (res) => res?.data
+        (res) => res?.data,
       ),
     enabled: minPrice > 0 || maxPrice > 0,
   });
@@ -112,7 +112,18 @@ export const useProductsByPriceRange = (minPrice: number, maxPrice: number) =>
 export const useProductsByDisease = (disease: string) =>
   useQuery({
     queryKey: ["products-by-disease", disease],
-    queryFn: () =>
-      getFilteredProducts({ disease }).then((res) => res?.data),
+    queryFn: () => getFilteredProducts({ disease }).then((res) => res?.data),
     enabled: !!disease,
+  });
+
+export const useRelatedProducts = (slug: string) =>
+  useQuery({
+    queryKey: ["related-products", slug],
+    queryFn: () =>
+      getRelatedProducts(slug)
+        .then((res) => res?.data)
+        .catch((err) => {
+          if (err.response?.status === 204) return null;
+          return Promise.reject(err);
+        }),
   });

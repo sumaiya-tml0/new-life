@@ -1,8 +1,9 @@
 
-## Home page
+
 - Get all products category
 - Get all products by category
 - Get single Product (quick view, detail view)
+- Get related products
 
 ## Products page
 ### Search included by

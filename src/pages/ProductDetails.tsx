@@ -1,9 +1,15 @@
 import { useParams, useNavigate } from "react-router";
 import { Typography, Button, Tag, Breadcrumb, Tabs } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { useSingleProduct } from "../hooks/useProducts";
+import { useSingleProduct, useRelatedProducts } from "../hooks/useProducts";
 import { Loading } from "../shared/Loading";
 import type { Product } from "@/types/product";
+import ProductCard from "../components/products/ProductCard";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -11,6 +17,7 @@ const ProductDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { data: singleProduct, isLoading, error } = useSingleProduct(slug);
+  const { data: relatedProducts } = useRelatedProducts(slug || "");
 
   if (isLoading) return <Loading />;
 
@@ -202,6 +209,42 @@ const ProductDetails = () => {
             <Tabs items={tabItems} className="product-details-tabs" />
           </div>
         </div>
+
+        {/* Related Products Section */}
+        {relatedProducts && relatedProducts.length > 0 && (
+          <div className="mt-12">
+            <Title level={3} className="!text-[#222] !mb-6">
+              Related Products
+            </Title>
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={16}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              breakpoints={{
+                480: {
+                  slidesPerView: 2,
+                  spaceBetween: 16,
+                },
+                768: {
+                  slidesPerView: 3,
+                  spaceBetween: 20,
+                },
+                1024: {
+                  slidesPerView: 4,
+                  spaceBetween: 24,
+                },
+              }}
+              className="related-products-swiper !pb-12"
+            >
+              {relatedProducts.map((product: Product) => (
+                <SwiperSlide key={product.id}>
+                  <ProductCard product={product} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        )}
       </div>
     </div>
   );

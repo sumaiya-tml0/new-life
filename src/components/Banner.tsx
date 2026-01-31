@@ -38,7 +38,7 @@ const buttonVariants = {
 
 const BannerContent: React.FC = () => (
   <div className="absolute inset-0 flex items-center justify-center z-10">
-    <div className="text-center px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center max-w-4xl mx-auto">
+    <div className="text-center pt-32 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center max-w-4xl mx-auto">
       <motion.h1
         className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-thin text-white mb-2 sm:mb-3 md:mb-4 lg:mb-6 leading-tight"
         initial="hidden"

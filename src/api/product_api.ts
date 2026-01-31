@@ -148,3 +148,8 @@ export const getFilteredProducts = (filters: ProductFilters) => {
     params: buildFilterParams(filters),
   });
 };
+
+// related products
+export const getRelatedProducts = (slug: string) => {
+  return product.get(`/products/${slug}/related/`);
+};
