@@ -1,8 +1,9 @@
-import { Card, Typography, Button, Tag, Modal, Tooltip } from "antd";
+import { Card, Typography, Button, Tag, Modal, Tooltip, Space } from "antd";
 import { EyeOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { Product } from "../../types/product";
+import { useSingleProduct } from "../../hooks/useProducts";
 
 const { Text, Title } = Typography;
 
@@ -15,6 +16,8 @@ const ProductCard = ({ product, compact = false }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const navigate = useNavigate();
+
+  const { data: singleProduct } = useSingleProduct(product?.slug);
 
   const handleDetailsClick = () => {
     navigate(`/product/${product?.slug}`);
@@ -90,17 +93,23 @@ const ProductCard = ({ product, compact = false }: ProductCardProps) => {
           </div>
         }
       >
-        <div className="mb-4">
+        <Space vertical size={"small"}>
           <Title
             level={5}
-            className="!m-0 !mt-1 !mb-2 !text-[#222] !text-xs sm:!text-sm md:!text-[15px] !leading-tight line-clamp-2"
+            className=" !text-[#222] !text-xs sm:!text-sm md:!text-[15px] !leading-tight line-clamp-2"
           >
             {product?.name}
           </Title>
           <Text className="text-[#2e3191] text-[9px] sm:text-[10px] md:text-[11px] tracking-wide">
             {product?.size} {product?.unit_display} . {product?.type_name}
           </Text>
-        </div>
+
+          {singleProduct?.details?.diseases_text && (
+            <Text className="text-xs">
+              {singleProduct?.details?.diseases_text}
+            </Text>
+          )}
+        </Space>
         <div className="flex justify-between items-center pt-2 sm:pt-3 border-t border-gray-200">
           <Text
             strong
@@ -127,7 +136,7 @@ const ProductCard = ({ product, compact = false }: ProductCardProps) => {
               <img
                 src={product.primary_image}
                 alt={product.name}
-                style={{height: "100%"}}
+                style={{ height: "100%" }}
                 className="w-full object-cover rounded-lg"
               />
             ) : (
@@ -139,19 +148,41 @@ const ProductCard = ({ product, compact = false }: ProductCardProps) => {
 
           {/* Product Info */}
           <div className="w-full md:w-1/2 flex flex-col justify-between">
-            <div>
-              <Title level={3} className="!text-[#222] !mb-2">
-                {product.name}
-              </Title>
-              <Text className="text-xs !mb-2">prod_id: {product?.prod_id} </Text>
-              <br />
-              <Text className="text-xs !mb-2">
+            <Space vertical size="small">
+              {product?.name && (
+                <Title level={3} className="!text-[#222]">
+                  {product?.name}
+                </Title>
+              )}
+              <Text className="text-xs">Product Id: {product?.prod_id} </Text>
+
+              <Text className="text-xs">
                 {product?.size} {product?.unit_display} . {product?.type_name}
               </Text>
+
+              {product?.company_name && (
+                <Text className="text-xs" style={{ whiteSpace: "nowrap" }}>
+                  <span className="text-[#0b6b31]">Company Name:</span>{" "}
+                  {product?.company_name}
+                </Text>
+              )}
+
+              {product?.group_name && (
+                <Text className="text-xs">
+                  <span className="text-[#0b6b31]">Category:</span>{" "}
+                  {product?.group_name}
+                </Text>
+              )}
+              {singleProduct?.details?.diseases_text && (
+                <Text className="text-xs">
+                  {singleProduct?.details?.diseases_text}
+                </Text>
+              )}
+
               <Title level={3} className="!text-[#0b6b31] !mb-4">
                 ৳{product.price}
               </Title>
-            </div>
+            </Space>
 
             <div className="flex gap-3">
               {/* <Button

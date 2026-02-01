@@ -68,6 +68,12 @@ const MainLayout = () => {
               borderRadius: 8,
               colorBorderBg: "#e0e0e0",
             },
+              Collapse: {
+                headerBg: "transparent",
+                contentBg: "transparent",
+                headerPadding: "12px 16px",
+                contentPadding: "0 16px 12px",
+              },
             Pagination: {
               colorPrimary: "#fff",
             },

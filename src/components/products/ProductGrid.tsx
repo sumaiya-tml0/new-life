@@ -177,7 +177,7 @@ const ProductGrid = () => {
             value={filters.ordering || ""}
             onChange={handleSortChange}
             options={sortOptions}
-            style={{ width: 180 }}
+            style={{ width: 180,  background: "white", border: "1px solid #0b6b31" }}
             size="small"
             placeholder="Sort by"
           />

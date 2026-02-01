@@ -1,20 +1,41 @@
-import { Collapse, ConfigProvider, Typography, Slider, InputNumber, Button, Divider, Switch, Input } from "antd";
-import { DownOutlined, FilterOutlined, ClearOutlined, ExperimentOutlined } from "@ant-design/icons";
+import {
+  Collapse,
+  Typography,
+  Slider,
+  InputNumber,
+  Button,
+  Divider,
+  Input,
+} from "antd";
+import {
+  DownOutlined,
+  FilterOutlined,
+  ClearOutlined,
+  ExperimentOutlined,
+  ShopOutlined,
+} from "@ant-design/icons";
 import { useState } from "react";
 import CategoryItem from "./CategoryItem";
 import { useProductsCategories } from "../../hooks/useProducts";
 import { useProductStore } from "../../store/useProductStore";
 import type { Product } from "@/types/product";
+import FilterByCompany from "../filters/FilterByCompany";
+import FilterByAvailability from "../filters/FilterByAvailability";
 
 const { Title, Text } = Typography;
 
 const CategorySidebar = () => {
   const { data: categoriesData } = useProductsCategories();
-  const { filters, setFilters, setPriceRange, clearFilters } = useProductStore();
+  const { filters, setFilters, setPriceRange, clearFilters } =
+    useProductStore();
 
   // Local state for price inputs
-  const [minPrice, setMinPrice] = useState<number | undefined>(filters.min_price);
-  const [maxPrice, setMaxPrice] = useState<number | undefined>(filters.max_price);
+  const [minPrice, setMinPrice] = useState<number | undefined>(
+    filters.min_price,
+  );
+  const [maxPrice, setMaxPrice] = useState<number | undefined>(
+    filters.max_price,
+  );
 
   // Local state for power input
   const [powerInput, setPowerInput] = useState<string>(filters.power || "");
@@ -34,11 +55,6 @@ const CategorySidebar = () => {
   // Apply price filter
   const applyPriceFilter = () => {
     setPriceRange(minPrice, maxPrice);
-  };
-
-  // Handle featured toggle
-  const handleFeaturedToggle = (checked: boolean) => {
-    setFilters({ featured: checked || undefined });
   };
 
   // Handle slider change
@@ -76,41 +92,39 @@ const CategorySidebar = () => {
     <div className="space-y-6">
       {/* Categories Section */}
       <div>
-        <Title level={4} style={{ color: "#0b6b31", marginBottom: "16px" }}>
+        <Title level={4} style={{ color: "#0b6b31", marginBottom: "8px" }}>
           Categories
         </Title>
-        <ConfigProvider
-          theme={{
-            components: {
-              Collapse: {
-                headerBg: "transparent",
-                contentBg: "transparent",
-                headerPadding: "12px 16px",
-                contentPadding: "0 16px 12px",
-              },
-            },
-          }}
-        >
-          <Collapse
-            items={collapseItems}
-            bordered={false}
-            expandIconPlacement="end"
-            expandIcon={({ isActive }) => (
-              <DownOutlined
-                style={{
-                  color: "#0b6b31",
-                  fontSize: "12px",
-                  transition: "transform 0.3s",
-                  transform: isActive ? "rotate(180deg)" : "rotate(0deg)",
-                }}
-              />
-            )}
-            style={{ background: "transparent" }}
-          />
-        </ConfigProvider>
+
+        <Collapse
+          items={collapseItems}
+          bordered={false}
+          expandIconPlacement="end"
+          expandIcon={({ isActive }) => (
+            <DownOutlined
+              style={{
+                color: "#0b6b31",
+                fontSize: "12px",
+                transition: "transform 0.3s",
+                transform: isActive ? "rotate(180deg)" : "rotate(0deg)",
+              }}
+            />
+          )}
+          style={{ background: "transparent" }}
+        />
       </div>
 
-      <Divider className="!my-4" />
+      <Divider style={{ marginTop: 2 }} />
+
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <ShopOutlined className="text-[#0b6b31]" />
+          <Title level={5} style={{ color: "#0b6b31", margin: 0 }}>
+            Company
+          </Title>
+        </div>
+        <FilterByCompany />
+      </div>
 
       {/* Price Filter Section */}
       <div>
@@ -145,6 +159,7 @@ const CategorySidebar = () => {
                 value={minPrice}
                 onChange={(val) => setMinPrice(val || undefined)}
                 prefix="৳"
+                style={{ background: "white", border: "1px solid #0b6b31" }}
                 className="!w-full"
               />
             </div>
@@ -157,6 +172,7 @@ const CategorySidebar = () => {
                 value={maxPrice}
                 onChange={(val) => setMaxPrice(val || undefined)}
                 prefix="৳"
+                style={{ background: "white", border: "1px solid #0b6b31" }}
                 className="!w-full"
               />
             </div>
@@ -190,6 +206,7 @@ const CategorySidebar = () => {
             onChange={(e) => setPowerInput(e.target.value)}
             onKeyDown={handlePowerKeyPress}
             placeholder="e.g. 30, 200, 1M"
+            style={{ background: "white", border: "1px solid #0b6b31" }}
             className="flex-1"
           />
           <Button
@@ -205,18 +222,8 @@ const CategorySidebar = () => {
 
       <Divider className="!my-4" />
 
-      {/* Featured Products Toggle */}
-      <div>
-        <div className="flex items-center justify-between">
-          <Text className="text-gray-700">Featured Products Only</Text>
-          <Switch
-            size="small"
-            checked={filters.featured || false}
-            onChange={handleFeaturedToggle}
-            style={{ backgroundColor: filters.featured ? "#0b6b31" : undefined }}
-          />
-        </div>
-      </div>
+      {/* Availability Filter */}
+      <FilterByAvailability />
 
       <Divider className="!my-4" />
 

@@ -70,7 +70,7 @@ const Header = () => {
     },
     {
       label: (
-        <Link to="/products" style={{ color: "inherit" }}>
+        <Link to="/products" style={{ color: "inherit", cursor: "pointer" }}>
           Our Products
         </Link>
       ),
@@ -136,11 +136,12 @@ const Header = () => {
     if (path === "/chairman-message") return ["chairmanMessage", "aboutUs"];
     if (path === "/board-of-directors") return ["boardOfDirectors", "aboutUs"];
 
+    if (path === "/products") return ["ourProducts"];
     if (path.startsWith("/products/")) {
       const categoryName = path.split("/products/")[1];
       if (categoryName && categories) {
         const matchedCategory = categories.find(
-          (cat: Product) => cat.name === categoryName
+          (cat: Product) => cat.name === categoryName,
         );
         if (matchedCategory) {
           return [matchedCategory.name.toLowerCase(), "ourProducts"];

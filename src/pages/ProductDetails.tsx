@@ -6,7 +6,7 @@ import { Loading } from "../shared/Loading";
 import type { Product } from "@/types/product";
 import ProductCard from "../components/products/ProductCard";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
